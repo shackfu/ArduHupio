@@ -169,42 +169,52 @@ void showManualControl() {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println("Manuelle Steuerung:");
-  display.println("Bewege Joystick:");
-  display.println("  Oben - Hupe 1");
-  display.println("  Unten - Hupe 2");
-  display.println("  Links - Hupe 3");
-  display.println("  Rechts - Hupe 4");
+  display.println("Joystick bewegt Hupen.");
   display.display();
 }
 
 // Funktion zur manuellen Steuerung der Hupen
 void handleManualControl(int x, int y) {
   // Hupe 1 - Joystick nach oben
-  if (y < 400) {
+  if (y < 400 && x > 400 && x < 600) {
     digitalWrite(relays[0], HIGH);
   } else {
     digitalWrite(relays[0], LOW);
   }
 
   // Hupe 2 - Joystick nach unten
-  if (y > 600) {
+  if (y > 600 && x > 400 && x < 600) {
     digitalWrite(relays[1], HIGH);
   } else {
     digitalWrite(relays[1], LOW);
   }
 
   // Hupe 3 - Joystick nach links
-  if (x < 400) {
+  if (x < 400 && y > 400 && y < 600) {
     digitalWrite(relays[2], HIGH);
   } else {
     digitalWrite(relays[2], LOW);
   }
 
   // Hupe 4 - Joystick nach rechts
-  if (x > 600) {
+  if (x > 600 && y > 400 && y < 600) {
     digitalWrite(relays[3], HIGH);
   } else {
     digitalWrite(relays[3], LOW);
+  }
+
+  // Hupe 5 - Joystick oben rechts (diagonal)
+  if (x > 600 && y < 400) {
+    digitalWrite(relays[4], HIGH);
+  } else {
+    digitalWrite(relays[4], LOW);
+  }
+
+  // Hupe 6 - Joystick unten rechts (diagonal)
+  if (x < 400 && y < 400) {
+    digitalWrite(relays[5], HIGH);
+  } else {
+    digitalWrite(relays[5], LOW);
   }
 
   // Aktuelle Joystick-Position speichern
