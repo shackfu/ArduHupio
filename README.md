@@ -1,5 +1,5 @@
 # ArduHupio
-Arduino projects to play simple songs on car horns via relay board
+Arduino project to play simple songs on car horns via relay board
 
 ## Needed Parts:
 - Arduino Uno
