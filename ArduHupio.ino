@@ -14,8 +14,9 @@ const int numRelays = 6;
 
 // Menü Variablen
 int menuIndex = 0;
-const int numSongs = 3; // Anzahl der verfügbaren Musikstücke
-String songs[numSongs] = {"Song 1", "Song 2", "Song 3"};
+const int numOptions = 4; // Anzahl der Optionen inkl. Manuelle Steuerung
+String options[numOptions] = {"Song 1", "Song 2", "Song 3", "Manuelle Steuerung"};
+bool isPlaying = false;
 bool manualControl = false; // Flag für manuellen Modus
 
 // Joystick Pins
@@ -24,7 +25,6 @@ const int joystickY = A1;  // Y-Achse
 const int buttonSelect = 8; // Joystick Button
 int lastJoystickX = 0; // Variable zur Speicherung der letzten X-Position
 int lastJoystickY = 0; // Variable zur Speicherung der letzten Y-Position
-bool isPlaying = false;
 
 void setup() {
   // Relais Pins als Ausgang festlegen
@@ -59,14 +59,24 @@ void loop() {
   int currentJoystickX = analogRead(joystickX);
   int currentJoystickY = analogRead(joystickY);
 
-  // Joystick Button zum Wechsel zwischen Menü und manuellem Modus
+  // Joystick Button zum Wechsel zwischen Menü und Modi
   if (digitalRead(buttonSelect) == LOW) {
     if (manualControl) {
       manualControl = false; // Zurück zum Hauptmenü
       showMenu();
     } else {
-      manualControl = true; // In den manuellen Modus wechseln
-      showManualControl();
+      // Prüfe ob "Manuelle Steuerung" oder ein Song ausgewählt wurde
+      if (menuIndex < numOptions - 1) {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+          playSong(menuIndex);
+        } else {
+          stopSong();
+        }
+      } else {
+        manualControl = true; // In den manuellen Modus wechseln
+        showManualControl();
+      }
     }
     delay(200); // Debounce
   }
@@ -78,49 +88,33 @@ void loop() {
     // Navigation durch das Menü
     if (currentJoystickX < 400 && lastJoystickX >= 400) { // Links
       menuIndex--;
-      if (menuIndex < 0) menuIndex = numSongs;
+      if (menuIndex < 0) menuIndex = numOptions - 1;
       showMenu();
       delay(200); // Debounce
     }
 
     if (currentJoystickX > 600 && lastJoystickX <= 600) { // Rechts
       menuIndex++;
-      if (menuIndex > numSongs) menuIndex = 0;
+      if (menuIndex >= numOptions) menuIndex = 0;
       showMenu();
       delay(200); // Debounce
     }
 
     lastJoystickX = currentJoystickX;
-
-    // Auswahl eines Songs oder manuellen Modus
-    if (menuIndex < numSongs && digitalRead(buttonSelect) == LOW) {
-      isPlaying = !isPlaying;
-      if (isPlaying) {
-        playSong(menuIndex);
-      } else {
-        stopSong();
-      }
-      delay(200); // Debounce
-    }
   }
 }
 
 void showMenu() {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.println("Waehle ein Lied:");
-  for (int i = 0; i < numSongs; i++) {
+  display.println("Waehle eine Option:");
+  for (int i = 0; i < numOptions; i++) {
     if (i == menuIndex) {
-      display.print("> "); // Zeiger für ausgewählten Song
+      display.print("> "); // Zeiger für ausgewählte Option
     } else {
       display.print("  ");
     }
-    display.println(songs[i]);
-  }
-  if (menuIndex == numSongs) {
-    display.println("> Manuelle Steuerung");
-  } else {
-    display.println("  Manuelle Steuerung");
+    display.println(options[i]);
   }
   display.display();
 }
@@ -129,7 +123,7 @@ void playSong(int songIndex) {
   display.clearDisplay();
   display.setCursor(0, 0);
   display.println("Playing:");
-  display.println(songs[songIndex]);
+  display.println(options[songIndex]);
   display.display();
 
   // Relais-Muster für die verschiedenen Songs
@@ -186,30 +180,30 @@ void showManualControl() {
 // Funktion zur manuellen Steuerung der Hupen
 void handleManualControl(int x, int y) {
   // Hupe 1 - Joystick nach oben
-  if (y < 400 && lastJoystickY >= 400) {
+  if (y < 400) {
     digitalWrite(relays[0], HIGH);
-    delay(500);
+  } else {
     digitalWrite(relays[0], LOW);
   }
 
   // Hupe 2 - Joystick nach unten
-  if (y > 600 && lastJoystickY <= 600) {
+  if (y > 600) {
     digitalWrite(relays[1], HIGH);
-    delay(500);
+  } else {
     digitalWrite(relays[1], LOW);
   }
 
   // Hupe 3 - Joystick nach links
-  if (x < 400 && lastJoystickX >= 400) {
+  if (x < 400) {
     digitalWrite(relays[2], HIGH);
-    delay(500);
+  } else {
     digitalWrite(relays[2], LOW);
   }
 
   // Hupe 4 - Joystick nach rechts
-  if (x > 600 && lastJoystickX <= 600) {
+  if (x > 600) {
     digitalWrite(relays[3], HIGH);
-    delay(500);
+  } else {
     digitalWrite(relays[3], LOW);
   }
 
